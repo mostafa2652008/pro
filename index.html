@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#6366f1">
-    <title>Mostafa Recorder</title>
+    <title>Mostafa Recorder - 4K Enhanced</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .pulse-dot {
@@ -20,8 +20,8 @@
 <body class="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white min-h-screen">
     <div class="max-w-4xl mx-auto p-4">
         <div class="text-center mb-8 pt-6">
-            <h1 class="text-4xl font-bold mb-2">Mostafa Recorder</h1>
-            <p class="text-blue-200">برنامج تسجيل شاشة احترافي وخفيف</p>
+            <h1 class="text-4xl font-bold mb-2">Mostafa Recorder 4K</h1>
+            <p class="text-blue-200">برنامج تسجيل شاشة احترافي بجودة تصل إلى 4K</p>
         </div>
         
         <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-6 mb-6 shadow-2xl">
@@ -43,24 +43,50 @@
             
             <div id="settings" class="hidden mt-6 p-6 bg-white/10 rounded-2xl space-y-4">
                 <div>
-                    <label class="block mb-2">الجودة:</label>
+                    <label class="block mb-2 font-semibold">الجودة:</label>
                     <select id="quality" class="w-full bg-white/20 rounded-lg p-3 text-white border-0 outline-none">
-                        <option value="SD">SD (480p)</option>
-                        <option value="HD" selected>HD (720p)</option>
-                        <option value="FHD">Full HD (1080p)</option>
+                        <option value="SD">SD (854x480)</option>
+                        <option value="HD">HD (1280x720)</option>
+                        <option value="FHD" selected>Full HD (1920x1080)</option>
+                        <option value="QHD">2K QHD (2560x1440)</option>
+                        <option value="UHD">4K UHD (3840x2160)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block mb-2">معدل الإطارات:</label>
+                    <label class="block mb-2 font-semibold">معدل الإطارات:</label>
                     <select id="fps" class="w-full bg-white/20 rounded-lg p-3 text-white border-0 outline-none">
                         <option value="24">24 FPS</option>
                         <option value="30" selected>30 FPS</option>
                         <option value="60">60 FPS</option>
+                        <option value="120">120 FPS (للشاشات العالية)</option>
                     </select>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span>تسجيل الصوت:</span>
-                    <button id="micBtn" class="p-3 rounded-full bg-green-500 text-2xl transition-all">🎤</button>
+                <div>
+                    <label class="block mb-2 font-semibold">معدل البت (Bitrate):</label>
+                    <select id="bitrate" class="w-full bg-white/20 rounded-lg p-3 text-white border-0 outline-none">
+                        <option value="low">منخفض (2.5 Mbps)</option>
+                        <option value="medium">متوسط (5 Mbps)</option>
+                        <option value="high" selected>عالي (10 Mbps)</option>
+                        <option value="ultra">فائق (20 Mbps)</option>
+                        <option value="max">أقصى (40 Mbps)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block mb-2 font-semibold">مستوى الضغط (Compression):</label>
+                    <select id="compression" class="w-full bg-white/20 rounded-lg p-3 text-white border-0 outline-none">
+                        <option value="none">بدون ضغط (حجم كبير)</option>
+                        <option value="balanced" selected>متوازن (الأفضل)</option>
+                        <option value="high">ضغط عالي (حجم صغير)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block mb-2 font-semibold">مصدر الصوت:</label>
+                    <select id="audioSource" class="w-full bg-white/20 rounded-lg p-3 text-white border-0 outline-none">
+                        <option value="none">بدون صوت</option>
+                        <option value="mic">الميكروفون فقط</option>
+                        <option value="system">صوت الجهاز فقط</option>
+                        <option value="both" selected>الميكروفون + صوت الجهاز</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -76,7 +102,7 @@
         </div>
         
         <div class="text-center mt-6 text-blue-200 text-sm pb-6">
-            <p>Mostafa Recorder © 2024</p>
+            <p>Mostafa Recorder 4K © 2024</p>
         </div>
     </div>
 
@@ -87,9 +113,11 @@
         var time = 0;
         var timer = null;
         var recs = [];
-        var mic = true;
-        var qual = 'HD';
+        var qual = 'FHD';
         var rate = 30;
+        var bitrateLevel = 'high';
+        var compressionLevel = 'balanced';
+        var audioSource = 'both';
 
         document.getElementById('settingsBtn').onclick = function() {
             var el = document.getElementById('settings');
@@ -108,10 +136,16 @@
             rate = parseInt(e.target.value);
         };
 
-        document.getElementById('micBtn').onclick = function() {
-            mic = !mic;
-            this.className = 'p-3 rounded-full text-2xl transition-all ' + (mic ? 'bg-green-500' : 'bg-red-500');
-            this.textContent = mic ? '🎤' : '🔇';
+        document.getElementById('bitrate').onchange = function(e) {
+            bitrateLevel = e.target.value;
+        };
+
+        document.getElementById('compression').onchange = function(e) {
+            compressionLevel = e.target.value;
+        };
+
+        document.getElementById('audioSource').onchange = function(e) {
+            audioSource = e.target.value;
         };
 
         function fmt(s) {
@@ -130,28 +164,59 @@
             document.getElementById('timer').textContent = fmt(time);
         }
 
-        function start() {
-            var w = 1280;
-            var h = 720;
-            if (qual === 'FHD') {
-                w = 1920;
-                h = 1080;
-            } else if (qual === 'SD') {
-                w = 854;
-                h = 480;
+        function getResolution(quality) {
+            var resolutions = {
+                'SD': { width: 854, height: 480 },
+                'HD': { width: 1280, height: 720 },
+                'FHD': { width: 1920, height: 1080 },
+                'QHD': { width: 2560, height: 1440 },
+                'UHD': { width: 3840, height: 2160 }
+            };
+            return resolutions[quality] || resolutions['FHD'];
+        }
+
+        function getBitrate(level) {
+            var bitrates = {
+                'low': 2500000,
+                'medium': 5000000,
+                'high': 10000000,
+                'ultra': 20000000,
+                'max': 40000000
+            };
+            return bitrates[level] || bitrates['high'];
+        }
+
+        function adjustBitrateForCompression(baseBitrate) {
+            if (compressionLevel === 'high') {
+                return Math.floor(baseBitrate * 0.6);
+            } else if (compressionLevel === 'balanced') {
+                return Math.floor(baseBitrate * 0.8);
             }
+            return baseBitrate;
+        }
+
+        function start() {
+            var res = getResolution(qual);
+            var needSystemAudio = audioSource === 'system' || audioSource === 'both';
+            var needMic = audioSource === 'mic' || audioSource === 'both';
             
             navigator.mediaDevices.getDisplayMedia({
                 video: {
-                    width: w,
-                    height: h,
-                    frameRate: rate
+                    width: { ideal: res.width, max: res.width },
+                    height: { ideal: res.height, max: res.height },
+                    frameRate: { ideal: rate, max: rate }
                 },
-                audio: false
+                audio: needSystemAudio
             }).then(function(vidStream) {
-                if (mic) {
-                    navigator.mediaDevices.getUserMedia({audio: true}).then(function(audStream) {
-                        continueStart(vidStream, audStream);
+                if (needMic) {
+                    navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            sampleRate: 48000
+                        }
+                    }).then(function(micStream) {
+                        continueStart(vidStream, micStream);
                     }).catch(function() {
                         continueStart(vidStream, null);
                     });
@@ -163,28 +228,72 @@
             });
         }
 
-        function continueStart(vidStream, audStream) {
+        function continueStart(vidStream, micStream) {
             var tracks = vidStream.getVideoTracks();
-            if (audStream) {
-                var audioTracks = audStream.getAudioTracks();
-                for (var i = 0; i < audioTracks.length; i++) {
-                    tracks.push(audioTracks[i]);
+            var audioContext = null;
+            var destination = null;
+            
+            if (audioSource !== 'none') {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    destination = audioContext.createMediaStreamDestination();
+                    
+                    var systemAudioTracks = vidStream.getAudioTracks();
+                    if (systemAudioTracks.length > 0 && (audioSource === 'system' || audioSource === 'both')) {
+                        var systemSource = audioContext.createMediaStreamSource(new MediaStream(systemAudioTracks));
+                        systemSource.connect(destination);
+                    }
+                    
+                    if (micStream && (audioSource === 'mic' || audioSource === 'both')) {
+                        var micSource = audioContext.createMediaStreamSource(micStream);
+                        micSource.connect(destination);
+                    }
+                    
+                    var finalAudioTracks = destination.stream.getAudioTracks();
+                    for (var i = 0; i < finalAudioTracks.length; i++) {
+                        tracks.push(finalAudioTracks[i]);
+                    }
+                } catch (e) {
+                    console.error('خطأ في دمج الصوت:', e);
+                    var systemAudioTracks = vidStream.getAudioTracks();
+                    if (systemAudioTracks.length > 0) {
+                        for (var i = 0; i < systemAudioTracks.length; i++) {
+                            tracks.push(systemAudioTracks[i]);
+                        }
+                    }
+                    if (micStream) {
+                        var micTracks = micStream.getAudioTracks();
+                        for (var i = 0; i < micTracks.length; i++) {
+                            tracks.push(micTracks[i]);
+                        }
+                    }
                 }
             }
             
             stream = new MediaStream(tracks);
-            var bits = 5000000;
-            if (qual === 'FHD') {
-                bits = 8000000;
-            } else if (qual === 'SD') {
-                bits = 2500000;
+            var baseBits = getBitrate(bitrateLevel);
+            var bits = adjustBitrateForCompression(baseBits);
+            
+            var options = {
+                videoBitsPerSecond: bits
+            };
+            
+            var mimeTypes = [
+                'video/webm;codecs=vp9',
+                'video/webm;codecs=h264',
+                'video/webm;codecs=vp8',
+                'video/webm'
+            ];
+            
+            for (var i = 0; i < mimeTypes.length; i++) {
+                if (MediaRecorder.isTypeSupported(mimeTypes[i])) {
+                    options.mimeType = mimeTypes[i];
+                    break;
+                }
             }
             
             try {
-                mediaRecorder = new MediaRecorder(stream, {
-                    mimeType: 'video/webm;codecs=vp9',
-                    videoBitsPerSecond: bits
-                });
+                mediaRecorder = new MediaRecorder(stream, options);
             } catch (e) {
                 mediaRecorder = new MediaRecorder(stream);
             }
@@ -205,7 +314,10 @@
                     url: url,
                     dur: time,
                     date: new Date().toLocaleString('ar-EG'),
-                    size: (blob.size / (1024 * 1024)).toFixed(2)
+                    size: (blob.size / (1024 * 1024)).toFixed(2),
+                    quality: qual,
+                    fps: rate,
+                    compression: compressionLevel
                 };
                 recs.unshift(rec);
                 updateList();
@@ -224,7 +336,7 @@
             document.getElementById('pauseBtn').classList.remove('hidden');
             document.getElementById('stopBtn').classList.remove('hidden');
             timer = setInterval(tick, 1000);
-            document.getElementById('status').innerHTML = '<div class="flex items-center justify-center gap-2"><div class="w-3 h-3 bg-red-500 rounded-full pulse-dot"></div><span class="text-red-300 font-semibold">جاري التسجيل</span></div>';
+            document.getElementById('status').innerHTML = '<div class="flex items-center justify-center gap-2"><div class="w-3 h-3 bg-red-500 rounded-full pulse-dot"></div><span class="text-red-300 font-semibold">جاري التسجيل بجودة ' + qual + ' @ ' + rate + ' FPS</span></div>';
             
             vidStream.getVideoTracks()[0].onended = function() {
                 stop();
@@ -272,7 +384,7 @@
             var html = '';
             for (var i = 0; i < recs.length; i++) {
                 var r = recs[i];
-                html += '<div class="bg-white/10 rounded-xl p-4 flex items-center justify-between hover:bg-white/15 transition-all"><div class="flex-1"><div class="font-bold mb-1">تسجيل ' + r.id + '</div><div class="text-sm text-blue-200"><span>⏱️ ' + fmt(r.dur) + '</span><span class="mr-4">📁 ' + r.size + ' MB</span><span class="mr-4">📅 ' + r.date + '</span></div></div><div class="flex gap-2"><button onclick="dl(' + r.id + ')" class="bg-green-500 hover:bg-green-600 p-3 rounded-full transition-all text-xl">💾</button><button onclick="del(' + r.id + ')" class="bg-red-500 hover:bg-red-600 p-3 rounded-full transition-all text-xl">🗑️</button></div></div>';
+                html += '<div class="bg-white/10 rounded-xl p-4 flex items-center justify-between hover:bg-white/15 transition-all"><div class="flex-1"><div class="font-bold mb-1">تسجيل ' + r.id + ' <span class="text-xs bg-purple-500 px-2 py-1 rounded">' + r.quality + '</span> <span class="text-xs bg-blue-500 px-2 py-1 rounded">' + r.fps + ' FPS</span></div><div class="text-sm text-blue-200"><span>⏱️ ' + fmt(r.dur) + '</span><span class="mr-4">📁 ' + r.size + ' MB</span><span class="mr-4">📅 ' + r.date + '</span></div></div><div class="flex gap-2"><button onclick="dl(' + r.id + ')" class="bg-green-500 hover:bg-green-600 p-3 rounded-full transition-all text-xl">💾</button><button onclick="del(' + r.id + ')" class="bg-red-500 hover:bg-red-600 p-3 rounded-full transition-all text-xl">🗑️</button></div></div>';
             }
             document.getElementById('recordings').innerHTML = html;
         }
@@ -282,7 +394,7 @@
                 if (recs[i].id === id) {
                     var a = document.createElement('a');
                     a.href = recs[i].url;
-                    a.download = 'Mostafa_Recorder_' + id + '.webm';
+                    a.download = 'Mostafa_Recorder_' + recs[i].quality + '_' + recs[i].fps + 'fps_' + id + '.webm';
                     a.click();
                     break;
                 }
